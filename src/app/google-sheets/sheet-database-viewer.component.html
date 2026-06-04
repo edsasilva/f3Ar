@@ -1,0 +1,93 @@
+<section class="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+  <div class="space-y-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-lg shadow-slate-200/30 dark:border-slate-700 dark:bg-slate-950/90">
+    <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div class="space-y-2">
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
+          Fonte de dados
+        </p>
+        <h1 class="text-2xl font-semibold text-slate-950 dark:text-slate-100">
+          Google Sheet como banco de dados
+        </h1>
+        <p class="max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+          Atualize o endpoint e use a planilha como fonte de dados JSON para sua app Angular.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:bg-slate-400"
+        (click)="loadSheet()"
+        [attr.aria-label]="'Carregar planilha'"
+        [disabled]="loading()"
+      >
+        <ng-container *ngIf="loading()">
+          <span>Carregando...</span>
+        </ng-container>
+        <ng-container *ngIf="!loading()">
+          <span>Carregar planilha</span>
+        </ng-container>
+      </button>
+    </header>
+
+    <div class="grid gap-4 sm:grid-cols-3">
+      <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Endpoint</p>
+        <p class="mt-2 break-all text-sm text-slate-700 dark:text-slate-200">{{ endpoint() }}</p>
+      </article>
+      <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Linhas</p>
+        <p class="mt-2 text-3xl font-semibold text-slate-950 dark:text-white">{{ rows().length }}</p>
+      </article>
+      <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Status</p>
+        <p class="mt-2 text-sm text-slate-700 dark:text-slate-200">
+          <ng-container *ngIf="loading()">Carregando</ng-container>
+          <ng-container *ngIf="!loading() && hasRows()">Dados prontos</ng-container>
+          <ng-container *ngIf="!loading() && !hasRows()">Nenhum registro</ng-container>
+        </p>
+      </article>
+    </div>
+
+    <div *ngIf="error()" class="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-rose-950">
+      <strong class="block font-semibold">Erro ao carregar</strong>
+      <p class="mt-1 text-sm">{{ error() }}</p>
+    </div>
+
+    <div *ngIf="!error()">
+      <div *ngIf="hasRows()">
+        <div class="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
+          <table class="min-w-full table-auto text-left text-sm">
+            <thead class="border-b border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+              <tr>
+                <th class="px-4 py-3 font-medium">Data/Hora</th>
+                <th class="px-4 py-3 font-medium">Nome no jogo</th>
+                <th class="px-4 py-3 font-medium">Equipe principal</th>
+                <th class="px-4 py-3 font-medium">Poder da equipe</th>
+                <th class="px-4 py-3 font-medium">Melhor horário DS/CS</th>
+                <th class="px-4 py-3 font-medium">THP</th>
+                <th class="px-4 py-3 font-medium">Nível de profissão</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+              <ng-container *ngFor="let row of rows()">
+                <tr>
+                  <td class="px-4 py-3">{{ row.timestamp }}</td>
+                  <td class="px-4 py-3">{{ row.playerName }}</td>
+                  <td class="px-4 py-3">{{ row.mainTeam }}</td>
+                  <td class="px-4 py-3">{{ row.mainTeamPower }}</td>
+                  <td class="px-4 py-3">{{ row.bestTime }}</td>
+                  <td class="px-4 py-3">{{ row.thp }}</td>
+                  <td class="px-4 py-3">{{ row.professionLevel ?? '-' }}</td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div *ngIf="!hasRows()" class="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+        <p class="text-sm">Nenhum registro carregado. Pressione o botão acima e atualize o endpoint com seu ID de planilha.</p>
+      </div>
+    </div>
+  </div>
+</section>
