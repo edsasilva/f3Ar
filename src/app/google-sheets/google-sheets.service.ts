@@ -134,7 +134,7 @@ export class GoogleSheetsService {
       const responseText = await firstValueFrom(
         this.http.get(endpoint, { responseType: 'text' as const }),
       );
-
+      console.log('Google Sheets response:', responseText);
       this.rows.set(this.parseGoogleSheetResponse(responseText));
     } catch (error: unknown) {
       const message =
