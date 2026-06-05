@@ -5,11 +5,10 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist/f3ar"
+        "distDir": "dist/f3ar/browser"
       }
     }
-  ]
-  ,
+  ],
   "routes": [
     {
       "src": "/(.*)",
@@ -17,4 +16,3 @@
     }
   ]
 }
-
