@@ -65,7 +65,7 @@ import { SheetListComponent } from './sheet-list/sheet-list.component';
 export class DashboardComponent implements OnInit {
   sheets = SHEET_CONFIGS;
   selectedSheetIndex = signal(0);
-  
+
   authService = inject(AuthService);
   private router = inject(Router);
 

@@ -5,13 +5,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule, NgForOf, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { GoogleSheetsService } from './google-sheets.service';
 
 @Component({
   selector: 'sheet-database-viewer',
   standalone: true,
-  imports: [CommonModule, NgIf, NgForOf],
+  imports: [CommonModule],
   templateUrl: './sheet-database-viewer.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

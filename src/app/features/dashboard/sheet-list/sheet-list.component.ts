@@ -142,9 +142,9 @@ import { GoogleSheetsService } from '../google-sheets.service';
 })
 export class SheetListComponent implements OnInit {
   @Input() sheetConfig!: SheetConfig;
-  
+
   private sheetsService: GoogleSheetsService = inject(GoogleSheetsService);
-  
+
   loading = () => this.sheetsService.loading();
   hasRows = () => this.sheetsService.hasRows();
   error = () => this.sheetsService.error();
