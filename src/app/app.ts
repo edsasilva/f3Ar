@@ -8,6 +8,7 @@ import { SheetDatabaseViewerComponent } from './google-sheets/sheet-database-vie
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
+
 export class App {
   protected readonly title = signal('f3ar');
 }

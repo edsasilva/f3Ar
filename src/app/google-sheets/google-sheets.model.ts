@@ -7,3 +7,10 @@ export interface GoogleSheetRow {
   readonly thp: string | null;
   readonly professionLevel: number | null;
 }
+
+export interface GoogleSheetResponse {
+  rows: GoogleSheetRow[];
+  loading: boolean;
+  error: string | null;
+  hasRows: boolean;
+}
