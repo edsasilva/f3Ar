@@ -25,7 +25,7 @@ import { SheetListComponent } from './sheet-list/sheet-list.component';
       <!-- Header -->
       <mat-toolbar color="primary">
         <span class="spacer"></span>
-        <span>Bem-vindo, {{ authService.currentUser()?.username }}!</span>
+        <span>Bem-vindo, {{ currentUser()?.username }}!</span>
         <button mat-icon-button (click)="onLogout()" matTooltip="Sair">
           <mat-icon>logout</mat-icon>
         </button>
@@ -68,6 +68,8 @@ export class DashboardComponent implements OnInit {
 
   authService = inject(AuthService);
   private router = inject(Router);
+
+  currentUser = () => this.authService.currentUser();
 
   ngOnInit(): void {
     if (!this.authService.isAuthenticated()) {
