@@ -25,7 +25,7 @@ import { SheetListComponent } from './sheet-list/sheet-list.component';
       <!-- Header -->
       <mat-toolbar color="primary">
         <span class="spacer"></span>
-        <span>Bem-vindo, {{ currentUser()?.username }}!</span>
+        <span>Bem-vindo!</span>
         <button mat-icon-button (click)="onLogout()" matTooltip="Sair">
           <mat-icon>logout</mat-icon>
         </button>

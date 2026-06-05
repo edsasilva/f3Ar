@@ -86,6 +86,14 @@ export class GoogleSheetsService {
   }
 
   loadFromPublicGoogleSheetId(sheetId: string): void {
+    // Verify sheetId is not placeholder
+    if (sheetId === 'SEU_SHEET_ID_AQUI' || sheetId.length < 10) {
+      this.error.set('❌ Configure um ID de planilha válido. Veja GOOGLE_SHEETS_SETUP.md');
+      this.rows.set([]);
+      this.loading.set(false);
+      return;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
@@ -97,9 +105,18 @@ export class GoogleSheetsService {
         this.rows.set(parsedRows);
         this.loading.set(false);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading sheet:', err);
-        this.error.set('Erro ao carregar planilha');
+
+        // Check for specific error cases
+        if (err.status === 404) {
+          this.error.set('❌ Planilha não encontrada ou não é pública. Verifique o ID e permissões.');
+        } else if (err.status === 0) {
+          this.error.set('❌ Erro de rede. Verifique sua conexão.');
+        } else {
+          this.error.set(`❌ Erro ao carregar planilha: ${err.statusText || 'Erro desconhecido'}`);
+        }
+
         this.rows.set([]);
         this.loading.set(false);
       }
