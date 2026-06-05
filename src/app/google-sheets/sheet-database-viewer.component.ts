@@ -22,7 +22,7 @@ export class SheetDatabaseViewerComponent {
   readonly loading = this.googleSheetsService.loading;
   readonly error = this.googleSheetsService.error;
   readonly hasRows = this.googleSheetsService.hasRows;
-
+  // Example public Google Sheet ID with CORS enabled. Replace with your own for testing.
   readonly sheetId = signal('19jkKZ9AWh247e-TA8oXiTO9_cxhHMNMrwqPrCJGRzpM');
   readonly endpoint = computed(
     () =>
