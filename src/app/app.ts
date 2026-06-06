@@ -1,14 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { SheetDatabaseViewerComponent } from './google-sheets/sheet-database-viewer.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [HttpClientModule, SheetDatabaseViewerComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.scss',
+  standalone: true,
+  imports: [HttpClientModule, RouterOutlet],
+  template: `<router-outlet></router-outlet>`,
+  styles: []
 })
+export class App {}
 
-export class App {
-  protected readonly title = signal('f3ar');
-}
