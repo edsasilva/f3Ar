@@ -1,10 +1,9 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatTableModule } from '@angular/material/table';
 import { SheetConfig } from '../sheet.config';
 import { GoogleSheetsService } from '../google-sheets.service';
 
@@ -13,59 +12,76 @@ import { GoogleSheetsService } from '../google-sheets.service';
   standalone: true,
   imports: [
     CommonModule,
-    MatListModule,
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    MatDividerModule
+    MatTableModule
   ],
   template: `
     <div class="sheet-list-container">
       <div class="sheet-header">
         <h2>{{ sheetConfig.name }}</h2>
-        <button mat-raised-button color="primary" (click)="loadData()">
+        <button mat-flat-button color="primary" (click)="loadData()">
           <mat-icon>refresh</mat-icon>
-          Recarregar
+          Reload
         </button>
       </div>
 
       <div *ngIf="loading()" class="loading">
-        <mat-spinner></mat-spinner>
-        <p>Carregando dados...</p>
+        <mat-spinner diameter="40" color="accent"></mat-spinner>
+        <p>Syncing with Google Sheets...</p>
       </div>
 
-      <div *ngIf="error()" class="error">
+      <div *ngIf="error()" class="error-box">
+        <mat-icon>error_outline</mat-icon>
         <p>{{ error() }}</p>
       </div>
 
-      <div *ngIf="!loading() && hasRows()" class="list-wrapper">
-        <mat-list>
-          <mat-list-item *ngFor="let row of rows()">
-            <div class="list-item-content">
-              <div class="item-row">
-                <span class="item-label">Nome:</span>
-                <span class="item-value">{{ row.playerName || '-' }}</span>
-              </div>
-              <div class="item-row">
-                <span class="item-label">Time:</span>
-                <span class="item-value">{{ row.mainTeam || '-' }}</span>
-              </div>
-              <div class="item-row">
-                <span class="item-label">Power:</span>
-                <span class="item-value">{{ row.mainTeamPower || '-' }}</span>
-              </div>
-              <div class="item-row">
-                <span class="item-label">Melhor Tempo:</span>
-                <span class="item-value">{{ row.bestTime || '-' }}</span>
-              </div>
-            </div>
-            <mat-divider></mat-divider>
-          </mat-list-item>
-        </mat-list>
+      <div *ngIf="!loading() && hasRows()" class="table-wrapper mat-elevation-z2">
+        <table mat-table [dataSource]="rows()">
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef> Date </th>
+            <td mat-cell *matCellDef="let row"> {{ row.timestamp || '-' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="playerName">
+            <th mat-header-cell *matHeaderCellDef> Player </th>
+            <td mat-cell *matCellDef="let row"> <strong>{{ row.playerName || '-' }}</strong> </td>
+          </ng-container>
+
+          <ng-container matColumnDef="mainTeam">
+            <th mat-header-cell *matHeaderCellDef> Team </th>
+            <td mat-cell *matCellDef="let row"> {{ row.mainTeam || '-' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="mainTeamPower">
+            <th mat-header-cell *matHeaderCellDef> Power </th>
+            <td mat-cell *matCellDef="let row"> {{ row.mainTeamPower || '-' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="bestTime">
+            <th mat-header-cell *matHeaderCellDef> Best Time </th>
+            <td mat-cell *matCellDef="let row"> {{ row.bestTime || '-' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="thp">
+            <th mat-header-cell *matHeaderCellDef> THP </th>
+            <td mat-cell *matCellDef="let row"> {{ row.thp || '-' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="professionLevel">
+            <th mat-header-cell *matHeaderCellDef> Profession Level </th>
+            <td mat-cell *matCellDef="let row"> {{ row.professionLevel || '-' }} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
       </div>
 
       <div *ngIf="!loading() && !hasRows() && !error()" class="empty">
-        <p>Nenhum dado carregado. Clique em "Recarregar" para buscar dados.</p>
+        <mat-icon>info_outline</mat-icon>
+        <p>No data found. Click "Reload" to fetch data from the spreadsheet.</p>
       </div>
     </div>
   `,
@@ -75,6 +91,9 @@ import { GoogleSheetsService } from '../google-sheets.service';
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      background: #0f172a;
+      min-height: 100%;
+      color: white;
     }
 
     .sheet-header {
@@ -95,48 +114,77 @@ import { GoogleSheetsService } from '../google-sheets.service';
       align-items: center;
       gap: 1rem;
       min-height: 200px;
+      color: #94a3b8;
     }
 
-    .error {
-      background-color: #ffebee;
-      color: #d32f2f;
-      padding: 1rem;
-      border-radius: 4px;
-      text-align: center;
+    .error-box {
+      background-color: rgba(220, 38, 38, 0.1);
+      color: #fca5a5;
+      padding: 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(220, 38, 38, 0.2);
     }
 
     .empty {
-      background-color: #f5f5f5;
+      background-color: rgba(255, 255, 255, 0.03);
       padding: 2rem;
-      text-align: center;
-      color: #666;
-      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: #94a3b8;
+      border-radius: 8px;
+      border: 1px dashed rgba(255, 255, 255, 0.1);
     }
 
-    .list-wrapper {
+    .table-wrapper {
       flex: 1;
       overflow: auto;
+      border-radius: 12px;
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .list-item-content {
+    table {
       width: 100%;
-      padding: 0.5rem 0;
+      background: transparent !important;
     }
 
-    .item-row {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 1rem;
-      padding: 0.5rem 0;
+    /* Dark Table Overrides */
+    :host ::ng-deep {
+      .mat-mdc-header-cell {
+        color: #94a3b8 !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+        padding: 16px !important;
+      }
+
+      .mat-mdc-cell {
+        color: #e2e8f0 !important;
+        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+        padding: 16px !important;
+      }
+
+      .mat-mdc-row:hover {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+      }
+
+      strong {
+        color: white;
+      }
     }
 
-    .item-label {
+    button[mat-flat-button] {
+      border-radius: 8px;
       font-weight: 600;
-      color: #666;
-    }
-
-    .item-value {
-      color: #333;
     }
   `]
 })
@@ -144,6 +192,16 @@ export class SheetListComponent implements OnInit {
   @Input() sheetConfig!: SheetConfig;
 
   private sheetsService: GoogleSheetsService = inject(GoogleSheetsService);
+
+  displayedColumns: string[] = [
+    'timestamp',
+    'playerName',
+    'mainTeam',
+    'mainTeamPower',
+    'bestTime',
+    'thp',
+    'professionLevel'
+  ];
 
   loading = () => this.sheetsService.loading();
   hasRows = () => this.sheetsService.hasRows();
@@ -160,4 +218,3 @@ export class SheetListComponent implements OnInit {
     }
   }
 }
-

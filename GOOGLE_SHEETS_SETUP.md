@@ -42,7 +42,6 @@ sheetId: '1BxiMVs0XRA5nFMXT3pdLiWdtnCEWMlFhFv2-3eV_cCI'
 
 ## 5. Testar
 
-- Faça login na aplicação (admin / admin123)
 - Navegue pelas abas
 - Clique em "Recarregar" para buscar os dados
 

@@ -7,17 +7,17 @@ export interface SheetConfig {
 export const SHEET_CONFIGS: SheetConfig[] = [
   {
     id: 'players',
-    name: 'Jogadores',
+    name: 'Players',
     sheetId: '19jkKZ9AWh247e-TA8oXiTO9_cxhHMNMrwqPrCJGRzpM'
   },
   {
     id: 'teams',
-    name: 'Times',
+    name: 'Teams',
     sheetId: '19jkKZ9AWh247e-TA8oXiTO9_cxhHMNMrwqPrCJGRzpM'
   },
   {
     id: 'events',
-    name: 'Eventos',
+    name: 'Events',
     sheetId: '19jkKZ9AWh247e-TA8oXiTO9_cxhHMNMrwqPrCJGRzpM'
   }
 ];

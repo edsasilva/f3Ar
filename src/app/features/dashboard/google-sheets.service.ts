@@ -71,14 +71,22 @@ export class GoogleSheetsService {
         );
       }
 
-      return data.table.rows.map((row: { c: { v?: string | number | boolean | null }[] }) => {
-        const record: Record<string, string> = {};
-        row.c.forEach((cell: { v?: string | number | boolean | null }, idx: number) => {
+      return data.table.rows.map((row: { c: any[] }) => {
+      const record: Record<string, string> = {};
+
+      // Garantimos que row.c existe antes de iterar
+      if (row && row.c) {
+        row.c.forEach((cell: { v?: string | number | boolean | null } | null, idx: number) => {
           const key = this.mapColumnIdToKey(headers[idx] || String.fromCharCode(65 + idx));
-          record[key] = this.parseCellValue(cell.v ?? null);
+
+          // Mudança crucial: cell?.v garante que se a célula inteira for null,
+          // o código não quebra e passa null para o método parseCellValue
+          record[key] = this.parseCellValue(cell?.v ?? null);
         });
-        return record as GoogleSheetRow;
-      });
+      }
+
+      return record as GoogleSheetRow;
+    });
     } catch (err) {
       console.error('Error parsing Google Sheet:', err);
       return [];
@@ -88,7 +96,7 @@ export class GoogleSheetsService {
   loadFromPublicGoogleSheetId(sheetId: string): void {
     // Verify sheetId is not placeholder
     if (sheetId === 'SEU_SHEET_ID_AQUI' || sheetId.length < 10) {
-      this.error.set('❌ Configure um ID de planilha válido. Veja GOOGLE_SHEETS_SETUP.md');
+      this.error.set('❌ Configure a valid spreadsheet ID. See GOOGLE_SHEETS_SETUP.md');
       this.rows.set([]);
       this.loading.set(false);
       return;
@@ -97,7 +105,7 @@ export class GoogleSheetsService {
     this.loading.set(true);
     this.error.set(null);
 
-    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/query?tqx=out:json`;
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
     this.http.get(url, { responseType: 'text' }).subscribe({
       next: (responseText: string) => {
@@ -110,11 +118,11 @@ export class GoogleSheetsService {
 
         // Check for specific error cases
         if (err.status === 404) {
-          this.error.set('❌ Planilha não encontrada ou não é pública. Verifique o ID e permissões.');
+          this.error.set('❌ Spreadsheet not found or not public. Verify ID and permissions.');
         } else if (err.status === 0) {
-          this.error.set('❌ Erro de rede. Verifique sua conexão.');
+          this.error.set('❌ Network error. Check your connection.');
         } else {
-          this.error.set(`❌ Erro ao carregar planilha: ${err.statusText || 'Erro desconhecido'}`);
+          this.error.set(`❌ Error loading spreadsheet: ${err.statusText || 'Unknown error'}`);
         }
 
         this.rows.set([]);

@@ -19,19 +19,30 @@ export class GoogleSheetsService {
 
   constructor(private http: HttpClient) {}
 
-  private parseCellValue(value: string | number | boolean | null): string {
-    if (value === null || value === undefined || value === '') {
+  private parseCellValue(cell: any): string {
+    if (!cell || (cell.v === null && !cell.f)) {
       return '';
     }
-    if (typeof value === 'string' && value.startsWith('Date(')) {
-      const dateMatch = value.match(/Date\((\d+),(\d+),(\d+)/);
-      if (dateMatch) {
-        const [_, year, month, day] = dateMatch;
-        return `${day}/${parseInt(month) + 1}/${year}`;
-      }
-      return value;
+
+    // Prioriza o valor formatado (f) fornecido pelo Google,
+    // que respeita a formatação visual da própria planilha.
+    if (cell.f) {
+      return cell.f;
     }
-    return String(value);
+
+    const value = cell.v;
+    // Fallback: Tenta parsear strings do tipo Date(2023,10,15)
+    if (typeof value === 'string' && value.startsWith('Date(')) {
+      const numbers = value.match(/\d+/g);
+      if (numbers && numbers.length >= 3) {
+        const [y, m, d] = numbers.map(Number);
+        // Mês no Google Sheets JSON e no JS Date é indexado em 0
+        const date = new Date(y, m, d);
+        return date.toLocaleDateString('en-US');
+      }
+    }
+
+    return value !== null && value !== undefined ? String(value) : '';
   }
 
   private mapColumnIdToKey(columnId: string): keyof GoogleSheetRow {
@@ -71,11 +82,12 @@ export class GoogleSheetsService {
         );
       }
 
-      return data.table.rows.map((row: { c: { v?: string | number | boolean | null }[] }) => {
+      return data.table.rows.map((row: { c: any[] }) => {
         const record: Record<string, string> = {};
-        row.c.forEach((cell: { v?: string | number | boolean | null }, idx: number) => {
+        row.c.forEach((cell: any, idx: number) => {
           const key = this.mapColumnIdToKey(headers[idx] || String.fromCharCode(65 + idx));
-          record[key] = this.parseCellValue(cell.v ?? null);
+          // Passamos o objeto cell inteiro para acessar cell.f
+          record[key] = this.parseCellValue(cell);
         });
         return record as GoogleSheetRow;
       });
@@ -99,7 +111,7 @@ export class GoogleSheetsService {
       },
       error: (err) => {
         console.error('Error loading sheet:', err);
-        this.error.set('Erro ao carregar planilha');
+        this.error.set('Error loading spreadsheet');
         this.rows.set([]);
         this.loading.set(false);
       }
